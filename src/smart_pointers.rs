@@ -2,6 +2,16 @@ use std::any::type_name_of_val;
 use std::cell::Cell;
 use std::ops::Deref;
 
+#[derive(Debug)]
+struct DropNotifier(String);
+
+impl Drop for DropNotifier {
+    fn drop(&mut self) {
+        println!("{:?} is dropped", self.0);
+    }
+}
+
+
 enum List {
     Cons(i32, Box<List>),
     Nil
@@ -29,15 +39,18 @@ fn hello(name: &str) {
 
 pub(crate) fn main(){
 
+    let dn1 = DropNotifier("peter".to_string());
+    let dn2 = DropNotifier("peter".to_string());
 
-    let num = 5;
-    let num_ref = MyBox::new(num);
-
-    hello(&MyBox::new("hello".to_string()));
-
-    assert_eq!(5, *num_ref);
+    println!("Drop Notifiers Created");
 
 
+    // let num = 5;
+    // let num_ref = MyBox::new(num);
+    //
+    // hello(&MyBox::new("hello".to_string()));
+    //
+    // assert_eq!(5, *num_ref);
 
     //
     // let num_ref;
