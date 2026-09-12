@@ -1,6 +1,7 @@
 use std::any::type_name_of_val;
 use std::cell::Cell;
 use std::ops::Deref;
+use std::rc::Rc;
 
 #[derive(Debug)]
 struct DropNotifier(String);
@@ -13,7 +14,7 @@ impl Drop for DropNotifier {
 
 
 enum List {
-    Cons(i32, Box<List>),
+    Cons(i32, Rc<List>),
     Nil
 }
 
@@ -37,12 +38,34 @@ fn hello(name: &str) {
     println!("Hello, {name}!");
 }
 
+fn consume_drop_notifier(dn: DropNotifier){
+    let _ = format!("hey {}", dn.0);
+}
+
 pub(crate) fn main(){
 
-    let dn1 = DropNotifier("peter".to_string());
-    let dn2 = DropNotifier("peter".to_string());
+   //  let dn1 = DropNotifier("peter1".to_string());
+   //  let dn2 = DropNotifier("peter2".to_string());
+   //
+   // //  consume_drop_notifier(dn1);
+   //
+   //  println!("Drop Notifiers Created");
+   //
+   //  let b = &"bubba".to_string();
+   //
+   //  let a = Rc::new(Box::new(List::Cons(5, Rc::new(Box::new(List::Cons(10, Rc::new(Box::new(List::Nil))))))));
+   //  println!("Count {:?}", Rc::strong_count(&a));
+   //  let b = List::Cons(3, Rc::clone(&a));
+   //  println!("Count {:?}", Rc::strong_count(&a));
+   //
+   //  let c = List::Cons(4, Rc::clone(&a));
+   //  println!("Count {:?}", Rc::strong_count(&a));
 
-    println!("Drop Notifiers Created");
+
+    let a = Rc::new(List::Cons(5, Rc::new(List::Cons(10, Rc::new(List::Nil)))));
+    let b = List::Cons(3, a.clone());
+    let c = List::Cons(4, a.clone());
+
 
 
     // let num = 5;
