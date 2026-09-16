@@ -1,5 +1,5 @@
 use std::any::type_name_of_val;
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
 use std::ops::Deref;
 use std::rc::Rc;
 
@@ -42,7 +42,74 @@ fn consume_drop_notifier(dn: DropNotifier){
     let _ = format!("hey {}", dn.0);
 }
 
+struct Thingy {
+    stuff: String,
+}
+
+struct PrintMessenger {}
+
+impl Messenger for PrintMessenger {
+    fn send(&self, message: &str) {
+        println!("{message}");
+    }
+}
+
+pub trait Messenger {
+    fn send(&self, message: &str);
+}
+
+pub struct LimitTracker <T: Messenger> {
+    messenger: T,
+    value: usize,
+    max: usize
+}
+
+impl<T> LimitTracker<T> where T: Messenger {
+    pub fn new(messenger: T, max: usize) -> Self{
+        Self {
+            messenger,
+            value: 0,
+            max
+        }
+    }
+
+    pub fn set_value(&mut self, value: usize){
+        self.value = value;
+
+        let percentage_of_max = value as f64 / self.max as f64;
+
+        match percentage_of_max {
+            percentage if percentage >= 1.0 => {
+                self.messenger.send("you've reached your limit!")
+            }
+            percentage if percentage >= 0.75 => {
+                self.messenger.send("you've almost reached your limit (10% left)")
+            }
+            percentage if percentage >= 0.75 => {
+                self.messenger.send("you soon reach your limit (25% left)")
+            }
+            _ => ()
+        }
+
+    }
+}
+
 pub(crate) fn main(){
+
+
+    let print_messenger = PrintMessenger {};
+    let mut tracker = LimitTracker::new( print_messenger, 100);
+
+    tracker.set_value(90);
+
+
+    // let mut x = 5;
+    // let y = &mut x;
+    //
+    // let a = RefCell::new(Thingy {stuff: "Hello".to_string()});
+    // let b = a.borrow_mut();
+    // b
+
 
    //  let dn1 = DropNotifier("peter1".to_string());
    //  let dn2 = DropNotifier("peter2".to_string());
@@ -62,9 +129,9 @@ pub(crate) fn main(){
    //  println!("Count {:?}", Rc::strong_count(&a));
 
 
-    let a = Rc::new(List::Cons(5, Rc::new(List::Cons(10, Rc::new(List::Nil)))));
-    let b = List::Cons(3, a.clone());
-    let c = List::Cons(4, a.clone());
+    // let a = Rc::new(List::Cons(5, Rc::new(List::Cons(10, Rc::new(List::Nil)))));
+    // let b = List::Cons(3, a.clone());
+    // let c = List::Cons(4, a.clone());
 
 
 
