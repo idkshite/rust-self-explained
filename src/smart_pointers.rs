@@ -13,8 +13,9 @@ impl Drop for DropNotifier {
 }
 
 
+#[derive(Debug)]
 enum List {
-    Cons(i32, Rc<List>),
+    Cons(Rc<RefCell<i32>>, Rc<List>),
     Nil
 }
 
@@ -58,15 +59,15 @@ pub trait Messenger {
     fn send(&self, message: &str);
 }
 
-pub struct LimitTracker <T: Messenger> {
-    messenger: T,
+pub struct LimitTracker <'a, T: Messenger> {
+    messenger: &'a T,
     value: usize,
     max: usize
 }
 
-impl<T> LimitTracker<T> where T: Messenger {
-    pub fn new(messenger: T, max: usize) -> Self{
-        Self {
+impl<'a, T> LimitTracker<'a, T> where T: Messenger {
+    pub fn new(messenger: &'a T, max: usize) -> LimitTracker<'a, T>{
+        LimitTracker::<'a, T> {
             messenger,
             value: 0,
             max
@@ -96,11 +97,24 @@ impl<T> LimitTracker<T> where T: Messenger {
 
 pub(crate) fn main(){
 
+    let value = Rc::new(RefCell::new(5));
 
-    let print_messenger = PrintMessenger {};
-    let mut tracker = LimitTracker::new( print_messenger, 100);
+    let a = Rc::new(List::Cons(Rc::clone(&value), Rc::new(List::Nil)));
 
-    tracker.set_value(90);
+    let b = List::Cons(Rc::new(RefCell::new(3)), Rc::clone(&a));
+    let c = List::Cons(Rc::new(RefCell::new(4)), Rc::clone(&a));
+
+    *value.borrow_mut() += 10;
+
+    println!("a after = {a:?}");
+    println!("b after = {b:?}");
+    println!("c after = {c:?}");
+
+
+    // let print_messenger = PrintMessenger {};
+    // let mut tracker = LimitTracker::new(&print_messenger, 100);
+    //
+    // tracker.set_value(90);
 
 
     // let mut x = 5;
@@ -163,5 +177,39 @@ pub(crate) fn main(){
     // Cell::new(2);
     //
     // let conslist = List::Cons(1,Box::new(List::Cons(2, Box::new(List::Cons(3, Box::new(List::Nil))))));
+
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct MockMessenger{
+        messages: RefCell<Vec<String>>,
+    }
+
+    impl MockMessenger {
+        fn new() -> Self{
+            Self {
+                messages: RefCell::new(vec!()),
+            }
+        }
+    }
+
+    impl Messenger for MockMessenger {
+        fn send(&self, message: &str) {
+            self.messages.borrow_mut().push(message.to_string());
+        }
+    }
+
+    #[test]
+    fn creates_message_if_value_reaches_75_percent(){
+        let mock_messenger = MockMessenger::new();
+        let mut tracker = LimitTracker::new(&mock_messenger, 100);
+
+        tracker.set_value(75);
+
+        assert_eq!(mock_messenger.messages.borrow().len(), 1);
+    }
 
 }
