@@ -6,11 +6,14 @@ mod iterators;
 mod errors;
 mod enums;
 mod smart_pointers;
+mod tests;
+mod modules;
 
 use std::time::Duration;
 use tokio::time::sleep;
 use tracing::{error, info, warn};
 use crate::Cake::{CheeseCake, CherryCake};
+use crate::modules::make_cake;
 
 #[derive(Default, Debug)]
 enum Cake {
@@ -55,6 +58,9 @@ async fn main() {
     tracing_subscriber::fmt::init();
 
 
-    smart_pointers::main();
+    make_cake();
+    tests::main();
 
 }
+
+
