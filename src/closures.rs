@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone,Copy)]
 enum Ripeness {
     HardLikeAStone,
     SqueezeMe,
@@ -10,7 +10,7 @@ enum Ripeness {
     Foul,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 struct Avocado {
     ripeness: Ripeness,
     price: f32,

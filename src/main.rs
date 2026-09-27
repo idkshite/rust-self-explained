@@ -8,6 +8,8 @@ mod enums;
 mod smart_pointers;
 mod tests;
 mod modules;
+pub mod types;
+pub mod copy_clone;
 
 use std::time::Duration;
 use tokio::time::sleep;
@@ -58,8 +60,10 @@ async fn main() {
     tracing_subscriber::fmt::init();
 
 
-    make_cake();
-    tests::main();
+    //make_cake();
+    //tests::main();
+
+    smart_pointers::main();
 
 }
 

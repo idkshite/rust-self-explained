@@ -31,7 +31,12 @@ impl List {
     }
 }
 
+
 struct MyBox<T>(T);
+
+impl<T> Clone for MyBox<T> { fn clone(&self) -> Self { todo!() } }
+
+impl<T:Copy > Copy for MyBox<T> {}   // hypothesis: derive wrote THIS (unconditional)
 
 impl<T> MyBox<T>{
     fn new(val: T) -> MyBox<T> {
@@ -107,8 +112,30 @@ impl<'a, T> LimitTracker<'a, T> where T: Messenger {
     }
 }
 
+fn eat<T>(_b: MyBox<T>) {}
+fn needs_copy<T: Copy>(_x: T) {}
+
+struct Plain { a: i32 }
+
+// #[derive(Clone, Copy)]
+// struct Holder<'a> { r: &'a mut i32 }
+
 pub(crate) fn main(){
 
+
+        // needs_copy(Plain { a: 1 });
+        // let mut n = 5;
+        // needs_copy(&mut n);          // &mut i32 — no Drop impl either
+
+    let mut n = 5;
+    let a = &mut n;
+    let b = a;
+    *b += 1;
+    println!("{n}");
+
+
+
+        // needs_copy(MyBox(String::from("hi")));
 
     // let a = Rc::new(Cons(5, RefCell::new(Rc::new(Nil))));
     //
