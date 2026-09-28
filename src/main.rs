@@ -10,6 +10,8 @@ mod tests;
 mod modules;
 pub mod types;
 pub mod copy_clone;
+pub mod copy_cost;
+pub mod partial_move;
 
 use std::time::Duration;
 use tokio::time::sleep;
@@ -63,7 +65,7 @@ async fn main() {
     //make_cake();
     //tests::main();
 
-    smart_pointers::main();
+    // smart_pointers::main();
 
 }
 
