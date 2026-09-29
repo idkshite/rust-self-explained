@@ -1,0 +1,30 @@
+{
+  "name": "rust-self-explained",
+  "image": "mcr.microsoft.com/devcontainers/rust:1-bookworm",
+
+  // Image stable can lag; edition 2024 + rand 0.10.2 need a recent rustc.
+  // cargo fetch prewarms deps so the first `cargo run` isn't a download.
+  "onCreateCommand": "rustup update stable && cargo fetch",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "vadimcn.vscode-lldb"
+      ],
+      "settings": {
+        "rust-analyzer.check.command": "clippy",
+        "editor.formatOnSave": true,
+        "[rust]": {
+          "editor.defaultFormatter": "rust-lang.rust-analyzer"
+        }
+      }
+    }
+  },
+
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "8gb"
+  }
+}
