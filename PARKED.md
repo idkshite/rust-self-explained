@@ -16,6 +16,7 @@ Pre-written at session start:
 - `Cow`
 - `to_string()` vs `to_owned()`
 - clone-in-a-closure / `move`
+- why can I assign &self to a variable inside a function if I can't assign self.zones to a variable. cannot move out of `self.zones` which is behind a shared reference [E0507]
 
 Raised mid-session:
 

@@ -1,5 +1,5 @@
 [package]
-name = "async-explained"
+name = "rust-self-explained"
 version = "0.1.0"
 edition = "2024"
 
