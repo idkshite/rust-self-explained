@@ -12,6 +12,7 @@ pub mod types;
 pub mod copy_clone;
 pub mod copy_cost;
 pub mod partial_move;
+pub mod deref;
 
 use std::time::Duration;
 use tokio::time::sleep;

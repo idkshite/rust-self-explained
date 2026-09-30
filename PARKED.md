@@ -72,10 +72,32 @@ Raised mid-session (2026-09-28):
 
 - **How do I actually get the field out in a gdext `&mut self` method?** The refusal is
   now understood; the workaround is not. Candidates named by rustc itself: `clone()`.
-  Others suspected: `std::mem::take`, `std::mem::replace`, `Option::take`. Untested.
+  Others suspected: `std::mem::take`, `std::mem::replace`, `Option::take`. `mem::replace`
+  now tested (2026-09-30, `src/deref.rs` case 3) and understood: it works because the take
+  and the refill are ONE operation. Still untested on an actual field behind `&mut self`.
 - **Passing one field instead of the whole struct.** Calling an owning function moves the
   WHOLE struct, not the field — so `take_name_owned(p)` costs you `p.hp` too. Would a
   function that takes only `name: String` be the right shape? When is that the fix?
-- **`*` on a reference.** Confirmed `*player` cannot move a non-`Copy` value out. Still no
+- ~~**`*` on a reference.** Confirmed `*player` cannot move a non-`Copy` value out. Still no
   mental model of what deref is *for* — reading through, writing through, and moving out
-  are apparently three different things. Overlaps the starred auto-deref question from 2026-09-27.
+  are apparently three different things.~~ Answered 2026-09-30 → `src/deref.rs`. Four verbs,
+  not three: assign / copy out / borrow / move out. Only the last is refused.
+
+## 2026-09-30 — session: "Why does `*r = v` compile when `let x = *r` is refused?"
+
+Split off the compound "what is dereferencing for" — the siblings NOT taken:
+
+- **When can I omit the `*`?** `level.0 += 1` on a `&mut Level` just works; `(*level).0 += 1`
+  is presumably the same thing. Where does rustc insert derefs for me (field access, method
+  receivers, `+=`), and where does it refuse to? Supersedes the ⭐ 2026-09-27 auto-deref park.
+- **`*` on smart pointers.** `Box`, `Rc`, `RefCell`, `String` overload `*` via the `Deref`
+  trait. `*boxed` CAN move out; `*rc` cannot. Why do they differ, and is that even the same
+  `*` as on a plain `&mut`? Closest sibling to the gdext `Gd<T>` problem (park (d), 2026-09-28).
+
+Raised mid-session (2026-09-30):
+
+- **What is `&*r` for?** Taking a reference to a dereference looks like a round trip that
+  cancels out. It doesn't — but the purpose is unclear. (Suspected: reborrowing, and
+  narrowing `&mut` to `&`.) Untested.
+- **`ref` patterns.** `let ref x = v`, `Some(ref s) => ...`. Never learned what they do or
+  why they exist alongside `&`.
